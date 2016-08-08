@@ -5,8 +5,8 @@ import skimage.transform
 from pydash import py_
 
 
-THETA_INCREMENT = 0.05
-THETA_SPAN = 5
+THETA_INCREMENT = 0.5
+THETA_SPAN = 10
 
 THETA_H = np.deg2rad(np.arange(0 - THETA_SPAN, THETA_SPAN, THETA_INCREMENT))
 THETA_V = np.deg2rad(np.arange(90 - THETA_SPAN, 90 + THETA_SPAN, THETA_INCREMENT))
@@ -65,10 +65,16 @@ def approximate_line_span(points, axis=0):
     return (min(x), np.percentile(y, 10)), (max(x), np.percentile(y, 90))
 
 
-def infer_lines(img, axis=0, **kwa)
+def infer_lines(img, axis=0, **kwa):
   segments = _filter_lines(img, axis, **kwa)
   return (py_(segments)
       .flatten()
       .thru(lambda x: group_adaptive(x, axis))
       .map_(lambda x: approximate_line_span(x, axis))
       .value())
+
+
+def infer_grid(img, **kwa):
+  vt = infer_lines(img, axis=0, **kwa)
+  hz = infer_lines(img, axis=1, **kwa)
+  return vt, hz
