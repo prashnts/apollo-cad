@@ -16,13 +16,14 @@ THRESHOLD = 100
 MIN_LENGTH = 100
 MIN_GAP = 3
 
-def infer_lines(img,
+def _filter_lines(img,
       axis=0,
       sigma=SIGMA,
       threshold=THRESHOLD,
       length=MIN_LENGTH,
       gap=MIN_GAP,
-      theta=None):
+      theta=None,
+      **kwa):
   if not theta:
     theta = THETA_V if axis else THETA_H
   edges = skimage.feature.canny(img, sigma)
@@ -63,8 +64,11 @@ def approximate_line_span(points, axis=0):
   else:
     return (min(x), np.percentile(y, 10)), (max(x), np.percentile(y, 90))
 
-(py_(lines)
-    .flatten()
-    .thru(lambda x: grouped_points(x, axis=0))
-    .map_(lambda x: approximate_line_span(x, axis=0))
-    .value())
+
+def infer_lines(img, axis=0, **kwa)
+  segments = _filter_lines(img, axis, **kwa)
+  return (py_(segments)
+      .flatten()
+      .thru(lambda x: group_adaptive(x, axis))
+      .map_(lambda x: approximate_line_span(x, axis))
+      .value())
