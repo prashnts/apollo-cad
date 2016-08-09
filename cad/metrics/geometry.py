@@ -66,6 +66,21 @@ def approximate_line_span(points, axis=0):
 
 
 def infer_lines(img, axis=0, **kwa):
+  """Infer line span from broken segments.
+
+  Args:
+      img (ndarray:`float64`): Grayscaled image matrix.
+      axis (int:`{0, 1}`, optional): Specify inference axis.
+      **kwa: Passed to ``_filter_lines`` routine.
+
+  Returns:
+      Combined point-pairs that span (approximately) through the observed
+      line segments. Example::
+
+          [((1, 1), (10, 1)),
+           ((2, 2), (9,  2))]
+
+  """
   segments = _filter_lines(img, axis, **kwa)
   return (py_(segments)
       .flatten()
