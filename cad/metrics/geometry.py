@@ -58,11 +58,20 @@ def group_adaptive(points, axis=0):
 
 
 def approximate_line_span(points, axis=0):
-  x, y = py_(points).unzip().value()
-  if axis == 0:
-    return (np.percentile(x, 10), min(y)), (np.percentile(x, 90), max(y))
-  else:
-    return (min(x), np.percentile(y, 10)), (max(x), np.percentile(y, 90))
+  naxis = int(not axis)
+  coors = py_(points).sort(key=lambda n: n[axis]).unzip().value()
+
+  c_a = [np.percentile(coors[axis], p) for p in (10, 90)]
+  c_b = [fn(coors[naxis]) for fn in (min, max)]
+  # Slope of `c_b` must be same as `coors[naxis]`. We will reverse c_b if
+  # coors[naxis] is a decreasing set (_WITHOUT_ reordering).
+  dcn = (np.diff(coors[naxis]) > 0).sum() < (len(coors[naxis]) / 2)
+  if dcn:
+    c_b.reverse()
+  spans = [c_a, c_b]
+  if axis:
+    spans.reverse()
+  return list(zip(*spans))
 
 
 def infer_lines(img, axis=0, **kwa):
