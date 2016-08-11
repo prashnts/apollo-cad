@@ -1,6 +1,7 @@
 import numpy as np
 import skimage.feature
 import skimage.transform
+import scipy
 
 from pydash import py_
 
@@ -85,6 +86,40 @@ def point_of_intersection(l, m):
   x = (d - c) / (a - b)
   y = (a * x) + c
   return x, y
+
+
+def find_convex_hull_rect(points):
+  points = np.array(points)
+  hull = scipy.spatial.ConvexHull(points)
+  v = hull.vertices
+  vertices = [points[i] for i in v]
+  p = [[v[i], v[(i + 1) % len(v)]] for i in range(len(v))]
+  vertex_pairs = [points[i] for i in p]
+  edges = [np.linalg.norm(np.diff(pt), ord=2) for pt in vertex_pairs]
+  length, breadth = max(edges[0], edges[3]), max(edges[1], edges[2])
+  return vertex_pairs, length, breadth
+
+
+def compute_transformation_matrix(vertices, length, breadth):
+  predicate = lambda x: np.linalg.norm(x, ord=2)
+  source = [
+    [0, 0],
+    [0, length],
+    [breadth, length],
+    [breadth, 0]]
+  vertices = list(vertices)
+  source.sort(key=predicate)
+  vertices.sort(key=predicate)
+  src, dst = map(np.array, [source, vertices])
+
+  tf = skimage.transform.ProjectiveTransform()
+  tf.estimate(src, dst)
+  return tf
+
+
+def apply_transform(img, tf, length, breadth):
+  shape = (int(length), int(breadth))
+  return skimage.transform.warp(img, tf, output_shape=shape)
 
 
 def infer_lines(img, axis=0, **kwa):
