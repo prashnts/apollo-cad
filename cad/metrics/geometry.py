@@ -74,6 +74,19 @@ def approximate_line_span(points, axis=0):
   return list(zip(*spans))
 
 
+def point_of_intersection(l, m):
+  def slope_intercept(k):
+    (x1, y1), (x2, y2) = k
+    m = (y2 - y1) / (x2 - x1)
+    i = y1 - (m * x1)
+    return m, i
+  a, c = slope_intercept(l)
+  b, d = slope_intercept(m)
+  x = (d - c) / (a - b)
+  y = (a * x) + c
+  return x, y
+
+
 def infer_lines(img, axis=0, **kwa):
   """Infer line span from broken segments.
 
