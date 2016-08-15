@@ -70,3 +70,16 @@ def test_infer_lines_span():
     ((1273.0, 1812), (1295.0, 1))]
   spans_found = geometry.infer_lines_span(segs, axis=0)
   assert set(spans) == set(spans_found)
+
+
+def test_approximate_line_span():
+  segs = [
+    (149, 1115),
+    (149, 717),
+    (148, 1442),
+    (148, 1160),
+    (146, 854),
+    (146, 719)]
+  span = [(146.0, 1442), (149.0, 717)]
+  span_found = geometry.approximate_line_span(segs, axis=0)
+  assert set(span) == set(span_found)
