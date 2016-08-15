@@ -76,6 +76,15 @@ def group_adaptive(points, axis=0):
 
 
 def approximate_line_span(points, axis=0):
+  """Approximate multiple line segments to a single continuous line.
+
+  Args:
+      points (list: `(x, y)`): Points belonging to lines.
+      axis: See parent.
+
+  Returns:
+      Coordinate pair of approximated line span.
+  """
   naxis = int(not axis)
   coors = py_(points).sort(key=lambda n: n[axis]).unzip().value()
 
