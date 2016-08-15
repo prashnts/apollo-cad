@@ -93,17 +93,38 @@ def approximate_line_span(points, axis=0):
 
 
 def point_of_intersection(l, m):
-  def slope_intercept(k):
-    (x1, y1), (x2, y2) = k
-    m = (y2 - y1) / (x2 - x1)
-    i = y1 - (m * x1)
-    return m, i
-  a, c = slope_intercept(l)
-  b, d = slope_intercept(m)
-  x = (d - c) / (a - b)
-  y = (a * x) + c
-  return x, y
+  """Find point of intersection of lines l, m described by coordinate pairs.
 
+  Notes:
+      - Slope intercept form is not a very good choice, since ``m`` grows to
+          infinity in case of a vertical line.
+      - We instead use homogeneous coordinates by transforming the given
+          points (x, y) to (x, y, 1).
+      - Line equation is given by:
+            (y - y1)(x2 - x1) = (y2 - y1)(x - x1)
+          which gives us,
+            a = -(y2 - y1)
+            b = (x2 - x1)
+            c = -(x2y1 - x1y2)
+          for ax + by + c = 0
+      - This avoids division step.
+  """
+  def coefficients(k):
+    (x1, y1), (x2, y2) = k
+    a = -(y2 - y1)
+    b =  (x2 - x1)
+    c = -(x1 * y2) + (x2 * y1)
+    return a, b, c
+
+  a1, b1, c1 = coefficients(l)
+  a2, b2, c2 = coefficients(m)
+
+  ap = (b1 * c2) - (b2 * c1)
+  bp = (a2 * c1) - (a1 * c2)
+  cp = (a1 * b2) - (a2 * b1)
+
+  if not cp == 0:
+    return ap, bp
 
 def find_convex_hull_rect(points):
   points = np.array(points)
