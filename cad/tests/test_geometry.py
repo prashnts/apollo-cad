@@ -40,6 +40,9 @@ def test_point_of_intersection():
   pt3 = [
     ((1, 1), (1, -1)),
     ((0, 0), (0, -1))]
+  pt4 = [
+    ((0, 0), (0, -1)),
+    ((0, 0), (0, -1))]
 
   assert geometry.point_of_intersection(*pt1) == (2, 2)
   assert geometry.point_of_intersection(*pt2) == (0, 0)

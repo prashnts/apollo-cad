@@ -107,7 +107,16 @@ def point_of_intersection(l, m):
             b = (x2 - x1)
             c = -(x2y1 - x1y2)
           for ax + by + c = 0
-      - This avoids division step.
+      - This avoids any divisions, hence slope can be arbitrarily large.
+      - Intersection is given as a vector product of line coordinates:
+            U_i = (a_i, b_i, c_i)
+              P = U_1 x U_2
+
+  Args:
+      l, m: Coordinate pairs of each line.
+
+  Returns:
+      Point of intersection if exists, else ``None``.
   """
   def coefficients(k):
     (x1, y1), (x2, y2) = k
