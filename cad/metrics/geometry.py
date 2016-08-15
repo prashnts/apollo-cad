@@ -147,13 +147,12 @@ def find_convex_hull_rect(points):
   return vertex_pairs, length, breadth
 
 
-def infer_lines(img, axis=0, **kwa):
+def infer_lines_span(segments, axis=0):
   """Infer line span from broken segments.
 
   Args:
-      img (ndarray:`float64`): Grayscaled image matrix.
+      segments: Line segments.
       axis (int:`{0, 1}`, optional): Specify inference axis.
-      **kwa: Passed to ``_filter_lines`` routine.
 
   Returns:
       Combined point-pairs that span (approximately) through the observed
@@ -163,12 +162,17 @@ def infer_lines(img, axis=0, **kwa):
            ((2, 2), (9,  2))]
 
   """
-  segments = _filter_lines(img, axis, **kwa)
   return (py_(segments)
       .flatten()
       .thru(lambda x: group_adaptive(x, axis))
       .map_(lambda x: approximate_line_span(x, axis))
+      .map_(tuple)
       .value())
+
+def infer_lines(img, axis=0, **kwa):
+  # XXX: For backwards compatibility. WILL be removed.
+  segments = _filter_lines(img, axis, **kwa)
+  return infer_lines_span(segments, axis)
 
 
 def infer_grid(img, **kwa):
