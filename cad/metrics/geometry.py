@@ -36,15 +36,32 @@ def _filter_lines(img,
 
 
 def group_adaptive(points, axis=0):
+  """Group points that are possibly the gridlines.
+
+  The method adaptively estimates the groups each points may belong to. An
+  overview is below:
+  - Sort the points in increasing order of primary axis.
+  - Calculate the increments in secondary axis.
+  - Calculate incremental threshold as the 90th percentile of increments.
+  - Split the ``points`` array wherever the increment is greater than the
+    threshold.
+
+  Args:
+      points (List of (x, y) tuples): Points that describe line segments.
+      axis (int:`{0, 1}`, optional): Specify inference axis.
+
+  Returns:
+      List of lists of points, each grouped together.
+  """
   points = py_(points).sort(key=lambda x: x[axis])
   principle = (points
       .clone(is_deep=True)
       .map_(lambda x: x[axis])
       .value())
   n = len(principle)
-  increments = [0] + [principle[i + 1] - principle[i] for i in range(n - 1)]
+  increments = [0] + [abs(principle[i + 1] - principle[i]) for i in range(n - 1)]
   di = py_.uniq(increments)
-  threshold = sum([(increments.count(x) * x) for x in di]) / n
+  threshold = np.percentile(increments, 90)
   result = []
   group = []
 
